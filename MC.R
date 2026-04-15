@@ -87,6 +87,3 @@ flaggedPoints <- myPoints |>
   )
 
 
-
-
-
