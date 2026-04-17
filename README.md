@@ -1,7 +1,7 @@
 # my-first-practice-repo
 
 ## Project Title
-HW # 4.4 - Monte Carlo Simulation in R
+HW # 4.4 
 
 ## Overview
 This project is focused on practicing GitHub workflow skills, including creating and managing issues, making commits, working with branches, and merging changes. It demonstrates how version control is used to organize and track updates in the project.
