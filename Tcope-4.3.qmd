@@ -1,0 +1,183 @@
+---
+title: "TCope-4.3"
+author: "Tessa Cope"
+format: pdf
+date: 4/8/2026
+echo: FALSE
+---
+
+## Question 6
+### Busiest Airports: Table #1
+
+```{r tbl_passengers, fig.cap = "Annual passenger traffic (in millions) for busiest airports from 2020-2025."}
+library(tidyverse)
+
+airports <- data.frame(
+  airport = c("ATL","ATL","ATL","ATL","ATL","ATL",
+              "FRA","FRA","FRA","FRA","FRA","FRA",
+              "PKX","PKX","PKX","PKX","PKX","PKX"),
+  
+  year = rep(2020:2025, 6),
+  
+  passengers = c(
+    42, 75, 93, 104, 108, 110,   # ATL
+    18, 24, 48, 59, 70, 75,      # FRA
+    16, 25, 35, 40, 45, 50,       # PKX
+    28, 48, 65, 75, 85, 90,      # LAX
+    25, 40, 60, 70, 80, 88,      # DXB
+    30, 55, 70, 85, 95, 100      # HND
+    )
+  )
+
+library(dplyr)
+library(tidyr)
+airport_table <- airports %>%
+  group_by(airport, year) %>%
+  summarise(passengers = mean(passengers), .groups = "drop") %>%
+  pivot_wider(names_from = year, values_from = passengers)
+
+airport_table
+
+```
+
+
+## Question 7
+### Busiest Airports: Plot/Graph Figure #1
+```{r fig-passengers, fig.cap = "Passenger trends for major airports (2020-2025)."}
+
+airports_clean <- airports %>%
+  group_by(airport, year) %>%
+  summarise(passengers = mean(passengers), .groups = "drop")
+
+ggplot(airports_clean, aes(x = year, y = passengers, color = airport, group = airport)) +
+  geom_line(linewidth = 1) +
+  geom_point() +
+  labs(
+    title = "Passenger Trends for Major Airports (2020-2025)",
+    x = "Year",
+    y = "Passengers (Millions)",
+    color = "Airport"
+  ) +
+  theme_minimal()
+
+```
+
+## Question 8
+### Busiest Airports: Narrative Text
+The table and graph display passenger traffic for three busiest airports (ATL, FRA, PKX) from 2020 to 2025, showing a clear increase for all locations. ATL has the highest consistent passenger number, rising from 35 million in 2020 to 100 mil in 2025, while FRA and PKX start lower at 21.5 mil and 23 mil, but both experience steady growth over time. The graph visually confirms there trends with upward-sloping lines for all three airports, highlighting a steady recovery and growth in passenger traffic. 
+
+## Question 9
+### Monte Carlo Numeric Integration: Plot/Graph
+
+```{r fig-integration, fig.cap = "Visualization of Monte Carlo integration for estimating the area under a Weibull probability density function (shape = 1.5, scale = 1) over the interval [0, 4]. Random points are generated within a bounding box, with points below the curve contributing to the area estimate shown in the subtitle."}
+library(tidyverse)
+library(patchwork)
+
+monte_carlo_sim <- function(n, xmin, xmax, ymin, ymax, f) {
+  x <- runif(n, xmin, xmax)
+  y <- runif(n, ymin, ymax)
+  y_func <- f(x)
+  inside <- y <= y_func
+  data.frame(
+    x = x,
+    y = y,
+    y_func = y_func,
+    inside = inside
+  )
+}
+
+make_plot <- function(n) {
+
+  df <- monte_carlo_sim(
+    n = n,
+    xmin = 0, xmax = 1,
+    ymin = 0, ymax = 1.5,
+    f = function(x) dbeta(x, shape1 = 1.5, shape2 = 1)
+  ) %>%
+    mutate(region = ifelse(inside, "below", "above"))
+
+  area_box <- (1 - 0) * (1.5 - 0)
+  estimate <- mean(df$inside) * area_box
+
+  ggplot(df, aes(x = x, y = y, color = region)) +
+    geom_point(alpha = 0.6) +
+    stat_function(
+      fun = dbeta,
+      args = list(shape1 = 1.5, shape2 = 1),
+      color = "black",
+      linewidth = 1
+    ) +
+    labs(
+      title = paste("Monte Carlo Integration (n =", n, ")"),
+      subtitle = paste("Estimated Area =", round(estimate, 4)),
+      x = "x",
+      y = "y",
+      color = "Region"
+    ) +
+    theme_minimal()
+}
+
+plot10 <- make_plot(10)
+plot100 <- make_plot(100)
+plot1000 <- make_plot(1000)
+plot10000 <- make_plot(10000)
+
+plot10 + plot100 + plot1000 + plot10000
+```
+
+## Question 10
+### Monte Carlo Numeric Integration: Narrative Text
+The Monte Carlo simulation estimates the area under a Weibull probability density function by generating random points within a rectangular region and calculating the proportion that fall below the curve. Points below the curve contribute to the area estimate, while those above do not. The proportion of points below the curve is multiplied by the bounding box area to approximate the integral. The visualization supports this by showing the curve and scattered points, where the clustering under the curve aligns with the estimated value and suggests the result is reasonable.
+
+## Question 13
+### Planning and Prompting: Plan Informed-Response
+
+#### GenAI Response (Chat GPT, 4/12):
+The goal is to analyze how calcium levels change over time and compare the two treatment groups.
+Needs: The data must be in a tidy (long) format, variables for time and treatment group, and a clear way to visualize trends and differences.
+Steps:
+Convert the dataset from wide format to long format so time and group are clearly defined,
+Label each observation with its corresponding time point (Initial, Year 1–3) and treatment group,
+Create a visualization, such as a line plot or boxplot, and
+Use the graph to compare trends over time and differences between the two groups.
+
+#### My Plan:
+I would start by reshaping the data so each row has a time value (Initial, Year 1–3) and a label for either the control or diet/exercise group. Then I’d make a line graph with time on the x-axis and calcium levels on the y-axis, using different colors for each group. I’d also consider a boxplot to compare spread at each time point. The genAI graph only shows averages per column, which helps a little, but it doesn’t show how the groups change over time, so my graph would focus on that instead.
+
+## Question 14
+### Planning and Prompting: Generic Response
+#### Figure 3: Calcium Plot/Graph
+![Average calcium values for each column in the dataset.](chatgptPlot.png)
+
+#### GenAI Generic Response (Chat GPT, 4/12):
+The visualization shows the average calcium values for each column in the dataset, allowing for a general comparison across all measured variables. Each point represents the mean calcium level for a specific column, making it easy to identify overall patterns. The values appear to cluster around the low 70s, with some lower values in the mid-60s, indicating slight variation across measurements. This type of summary provides a high-level view of the data, but it does not capture changes over time or differences between treatment groups, which would require a more detailed visualization.
+
+## Question 15
+### Narrative Text
+#### GenAI Text (Chat GPT, 4/12):
+The visualization presents the average calcium values for each column in the dataset, providing a summary of overall trends. Each point represents the mean of a variable, allowing for easy comparison across measurements. The values generally cluster around the low 70s, with some lower values in the mid-60s, indicating moderate variation. While this offers a general overview, it does not show how calcium levels change over time or differ between treatment groups.
+
+#### My Narrative Text:
+This graph shows the average calcium levels for each column, so it’s easy to see which ones are higher or lower overall. Most of the values are around the low 70s, but a few drop closer to the mid-60s. It helps give a quick summary, but it doesn’t really show how things change over time or between the two groups, which would be more useful for understanding the data.
+
+## Question 16
+### Self-Reflection
+Throughout the assignment, I feel like I have learned a lot about working with messy data and turning it into something meaningful. At first, it was confusing to understand why the data wasn’t considered “tidy,” but after working through it, I realized how important it is to restructure data into a long format so it can actually be analyzed and visualized properly. For example, changing the columns into variables like time and treatment group made it much easier to think about how calcium levels change over time. I also learned how different types of graphs can show different things—like how the genAI graph only showed averages, which didn’t fully explain the data, while a time-based graph would give a clearer picture of trends. Overall, this helped me better understand both data wrangling and how to choose more effective visualizations instead of just relying on the first output I get.
+
+{{< pagebreak >}}
+
+## Question 17
+### GenAI Usage Appendix
+Chat GPT was used for questions 13, 14, and 15, accessed April 12th. 
+
+## Question 18
+### Code Appendix
+```{r}
+#| ref.label: tbl_passengers, fig-passengers, fig-integration
+#| echo: true
+#| eval: false
+```
+
+
+
+
